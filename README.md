@@ -4,7 +4,7 @@ AIディベートシステム。2つのAIエージェントが賛成・反対の
 
 ## デモ
 
-<video src="demo.mp4" width="100%" controls></video>
+https://github.com/user-attachments/assets/7080ce78-92ae-4a46-bf80-3562aef9a3a5
 
 ## 使い方
 
