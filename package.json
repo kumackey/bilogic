@@ -19,7 +19,7 @@
     "claude"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
     "@langchain/core": "^1.1.12",

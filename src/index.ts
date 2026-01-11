@@ -56,8 +56,6 @@ function parseTurns(input: string | undefined, defaultValue: number): number {
  * メイン関数
  */
 async function main() {
-  console.log('=== Bilogic - AI ディベートシステム (LangGraph版) ===\n');
-
   // コマンドライン引数をパース
   const { values } = parseArgs({
     options: {
@@ -123,8 +121,6 @@ async function main() {
 
   // グラフを実行
   const result = await graph.invoke(initialState);
-
-  console.log('\n=== ディベート終了 ===');
 
   if (result.winner) {
     const winnerConfig = AGENT_CONFIG[result.winner];
