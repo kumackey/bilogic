@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import * as readline from 'node:readline';
 import { parseArgs } from 'node:util';
-import { createDebateGraph } from './graph.js';
+import { AGENT_CONFIG, createDebateGraph } from './graph.js';
 
 /**
  * ヘルプメッセージを表示
@@ -125,9 +125,8 @@ async function main() {
   console.log('\n=== ディベート終了 ===');
 
   if (result.winner) {
-    const winnerEmoji = result.winner === 'A' ? '🔵' : '🔴';
-    const winnerName = result.winner === 'A' ? '賛成派 Agent A' : '反対派 Agent B';
-    console.log(`\n🏆 最終結果: ${winnerEmoji} ${winnerName} の勝利！`);
+    const winnerConfig = AGENT_CONFIG[result.winner];
+    console.log(`\n🏆 最終結果: ${winnerConfig.emoji} ${winnerConfig.name} の勝利！`);
   } else {
     console.log('\n最終結果: 判定不可');
   }
