@@ -44,6 +44,15 @@ async function promptInput(question: string): Promise<string> {
 }
 
 /**
+ * ターン数の入力をパースして検証
+ */
+function parseTurns(input: string | undefined, defaultValue: number): number {
+  if (!input) return defaultValue;
+  const turns = Number.parseInt(input, 10);
+  return !Number.isNaN(turns) && turns > 0 ? turns : defaultValue;
+}
+
+/**
  * メイン関数
  */
 async function main() {
@@ -85,7 +94,9 @@ async function main() {
   }
 
   // ターン数の取得
+  const DEFAULT_TURNS = 10;
   let maxTurns: number;
+
   if (values.turns) {
     const turns = Number.parseInt(values.turns, 10);
     if (Number.isNaN(turns) || turns <= 0) {
@@ -95,16 +106,7 @@ async function main() {
     maxTurns = turns;
   } else {
     const turnsInput = await promptInput('ターン数を入力してください（デフォルト: 10）: ');
-    if (turnsInput) {
-      const turns = Number.parseInt(turnsInput, 10);
-      if (!Number.isNaN(turns) && turns > 0) {
-        maxTurns = turns;
-      } else {
-        maxTurns = 10;
-      }
-    } else {
-      maxTurns = 10;
-    }
+    maxTurns = parseTurns(turnsInput, DEFAULT_TURNS);
   }
 
   console.log(`\nテーマ: ${topic}`);
@@ -126,7 +128,7 @@ async function main() {
 
   if (result.winner) {
     const winnerConfig = AGENT_CONFIG[result.winner];
-    console.log(`\n🏆 最終結果: ${winnerConfig.emoji} ${winnerConfig.name} の勝利！`);
+    console.log(`\n🏆 最終結果: ${winnerConfig.emoji} ${winnerConfig.label} の勝利！`);
   } else {
     console.log('\n最終結果: 判定不可');
   }

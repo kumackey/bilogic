@@ -38,17 +38,3 @@ export const DebateStateAnnotation = Annotation.Root({
  * DebateStateの型（型推論用）
  */
 export type DebateState = typeof DebateStateAnnotation.State;
-
-/**
- * エージェントの立場
- */
-export type AgentPosition = 'for' | 'against';
-
-/**
- * ディベート設定
- */
-export interface DebateConfig {
-  topic: string;
-  maxTurns: number;
-  model?: string;
-}

@@ -8,8 +8,7 @@ import { type DebateState, DebateStateAnnotation, type Message } from './types.j
  */
 export const AGENT_CONFIG = {
   A: {
-    emoji: '🔵',
-    name: '賛成派 Agent A',
+    emoji: '🙋‍♀️',
     label: '賛成派',
     role: 'agent_a' as const,
     position: '賛成' as const,
@@ -17,8 +16,7 @@ export const AGENT_CONFIG = {
     shouldIncrementTurn: true,
   },
   B: {
-    emoji: '🔴',
-    name: '反対派 Agent B',
+    emoji: '🙅‍♂️',
     label: '反対派',
     role: 'agent_b' as const,
     position: '反対' as const,
@@ -81,6 +79,17 @@ function getJudgeSystemPrompt(topic: string): string {
 }
 
 /**
+ * ロールからスピーカー名を取得
+ */
+function getSpeakerLabel(role: Message['role']): string {
+  return role === AGENT_CONFIG.A.role
+    ? AGENT_CONFIG.A.label
+    : role === AGENT_CONFIG.B.role
+      ? AGENT_CONFIG.B.label
+      : '審判';
+}
+
+/**
  * これまでの議論履歴を文字列に変換
  */
 function formatDebateHistory(history: Message[]): string {
@@ -88,17 +97,7 @@ function formatDebateHistory(history: Message[]): string {
     return 'これが最初の発言です。';
   }
 
-  return history
-    .map((msg) => {
-      const speaker =
-        msg.role === AGENT_CONFIG.A.role
-          ? AGENT_CONFIG.A.label
-          : msg.role === AGENT_CONFIG.B.role
-            ? AGENT_CONFIG.B.label
-            : '審判';
-      return `${speaker}: ${msg.content}`;
-    })
-    .join('\n\n');
+  return history.map((msg) => `${getSpeakerLabel(msg.role)}: ${msg.content}`).join('\n\n');
 }
 
 /**
@@ -107,9 +106,7 @@ function formatDebateHistory(history: Message[]): string {
 function getLastMessage(history: Message[]): string | null {
   if (history.length === 0) return null;
   const lastMsg = history[history.length - 1];
-  const speaker =
-    lastMsg.role === AGENT_CONFIG.A.role ? AGENT_CONFIG.A.label : AGENT_CONFIG.B.label;
-  return `${speaker}「${lastMsg.content}」`;
+  return `${getSpeakerLabel(lastMsg.role)}「${lastMsg.content}」`;
 }
 
 /**
@@ -134,7 +131,7 @@ function createAgentNode(agentId: 'A' | 'B') {
       turn,
     };
 
-    console.log(`\n${config.emoji} 【${config.name} - ターン ${turn}】\n${response}`);
+    console.log(`\n${config.emoji} 【${config.label} - ターン ${turn}】\n${response}`);
 
     return {
       debateHistory: [message],
@@ -165,12 +162,11 @@ async function judgeNode(state: DebateState): Promise<Partial<DebateState>> {
 
   // 構造化出力を使用して判定を取得
   const judgeOutput = await sendStructuredMessage(systemPrompt, userMessage, JudgeOutputSchema);
+  const winnerConfig = AGENT_CONFIG[judgeOutput.winner];
 
+  console.log(`\n🏆 勝者: ${winnerConfig.emoji} ${winnerConfig.label}`);
   console.log('\n⚖️  【審判の判定】');
   console.log(judgeOutput.reasoning);
-
-  const winnerConfig = AGENT_CONFIG[judgeOutput.winner];
-  console.log(`\n🏆 勝者: ${winnerConfig.emoji} ${winnerConfig.name}`);
 
   return {
     winner: judgeOutput.winner,
