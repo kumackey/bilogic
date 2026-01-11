@@ -4,13 +4,22 @@ import { sendMessage, sendStructuredMessage } from './client.js';
 import { type DebateState, DebateStateAnnotation, type Message } from './types.js';
 
 /**
+ * ノードID定数
+ */
+export const NODE_IDS = {
+  AGENT_A: 'agent_a',
+  AGENT_B: 'agent_b',
+  JUDGE: 'judge',
+} as const;
+
+/**
  * エージェント設定
  */
 export const AGENT_CONFIG = {
   A: {
     emoji: '🙋‍♀️',
     label: '賛成派',
-    role: 'agent_a' as const,
+    role: NODE_IDS.AGENT_A,
     position: '賛成' as const,
     actionVerb: '主張' as const,
     shouldIncrementTurn: true,
@@ -18,7 +27,7 @@ export const AGENT_CONFIG = {
   B: {
     emoji: '🙅‍♂️',
     label: '反対派',
-    role: 'agent_b' as const,
+    role: NODE_IDS.AGENT_B,
     position: '反対' as const,
     actionVerb: '反論' as const,
     shouldIncrementTurn: false,
@@ -177,11 +186,11 @@ async function judgeNode(state: DebateState): Promise<Partial<DebateState>> {
 /**
  * ターン継続判定（条件分岐ノード）
  */
-function shouldContinue(state: DebateState): 'agent_a' | 'judge' {
+function shouldContinue(state: DebateState): typeof NODE_IDS.AGENT_A | typeof NODE_IDS.JUDGE {
   if (state.currentTurn < state.maxTurns) {
-    return 'agent_a';
+    return NODE_IDS.AGENT_A;
   }
-  return 'judge';
+  return NODE_IDS.JUDGE;
 }
 
 /**
@@ -189,13 +198,13 @@ function shouldContinue(state: DebateState): 'agent_a' | 'judge' {
  */
 export function createDebateGraph() {
   const workflow = new StateGraph(DebateStateAnnotation)
-    .addNode('agent_a', agentANode)
-    .addNode('agent_b', agentBNode)
-    .addNode('judge', judgeNode)
-    .addEdge('__start__', 'agent_a')
-    .addEdge('agent_a', 'agent_b')
-    .addConditionalEdges('agent_b', shouldContinue)
-    .addEdge('judge', END);
+    .addNode(NODE_IDS.AGENT_A, agentANode)
+    .addNode(NODE_IDS.AGENT_B, agentBNode)
+    .addNode(NODE_IDS.JUDGE, judgeNode)
+    .addEdge('__start__', NODE_IDS.AGENT_A)
+    .addEdge(NODE_IDS.AGENT_A, NODE_IDS.AGENT_B)
+    .addConditionalEdges(NODE_IDS.AGENT_B, shouldContinue)
+    .addEdge(NODE_IDS.JUDGE, END);
 
   return workflow.compile();
 }

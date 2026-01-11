@@ -1,10 +1,11 @@
 import { Annotation } from '@langchain/langgraph';
+import { NODE_IDS } from './graph.js';
 
 /**
  * ディベートにおけるメッセージの型
  */
 export interface Message {
-  role: 'agent_a' | 'agent_b' | 'judge';
+  role: typeof NODE_IDS.AGENT_A | typeof NODE_IDS.AGENT_B | typeof NODE_IDS.JUDGE;
   content: string;
   turn: number;
 }
